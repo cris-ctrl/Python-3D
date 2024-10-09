@@ -5,8 +5,9 @@ from OpenGL.GLU import *
 import math
 import os
 import sys
-from boxes import draw_box
-
+from Functions.boxes import draw_box
+from Functions.room import draw_room
+from Functions.input import handle_input, handle_mouse
 # Define constants for movement, jump, and sensitivity
 FOV = 90
 MOVE_SPEED = 0.1
@@ -27,96 +28,7 @@ fullscreen = False  # Track if the game is in fullscreen mode
 
 
 
-def draw_room():
-    glBegin(GL_QUADS)
 
-    # Floor
-    glColor3f(0.5, 0.5, 0.5)
-    glVertex3f(-5, -1, -5)
-    glVertex3f(5, -1, -5)
-    glVertex3f(5, -1, 5)
-    glVertex3f(-5, -1, 5)
-
-    # Ceiling
-    glColor3f(0.7, 0.7, 0.7)
-    glVertex3f(-5, 5, -5)
-    glVertex3f(5, 5, -5)
-    glVertex3f(5, 5, 5)
-    glVertex3f(-5, 5, 5)
-
-    # Walls
-    glColor3f(0.8, 0.3, 0.3)
-    # Front wall
-    glVertex3f(-5, -1, -5)
-    glVertex3f(5, -1, -5)
-    glVertex3f(5, 5, -5)
-    glVertex3f(-5, 5, -5)
-
-    # Back wall
-    glVertex3f(-5, -1, 5)
-    glVertex3f(5, -1, 5)
-    glVertex3f(5, 5, 5)
-    glVertex3f(-5, 5, 5)
-
-    # Left wall
-    glVertex3f(-5, -1, -5)
-    glVertex3f(-5, -1, 5)
-    glVertex3f(-5, 5, 5)
-    glVertex3f(-5, 5, -5)
-
-    # Right wall
-    glVertex3f(5, -1, -5)
-    glVertex3f(5, -1, 5)
-    glVertex3f(5, 5, 5)
-    glVertex3f(5, 5, -5)
-
-    glEnd()
-
-def handle_input():
-    global player_pos, yaw, pitch, vertical_speed, is_jumping
-
-    keys = pygame.key.get_pressed()
-
-    # Movement forward and backward
-    move_x = math.sin(math.radians(yaw)) * MOVE_SPEED
-    move_z = math.cos(math.radians(yaw)) * MOVE_SPEED
-    if keys[K_w]:
-        player_pos[0] += move_x
-        player_pos[2] -= move_z
-    if keys[K_s]:
-        player_pos[0] -= move_x
-        player_pos[2] += move_z
-
-    # Strafe left and right
-    strafe_x = math.sin(math.radians(yaw + 90)) * MOVE_SPEED
-    strafe_z = math.cos(math.radians(yaw + 90)) * MOVE_SPEED
-    if keys[K_a]:
-        player_pos[0] -= strafe_x
-        player_pos[2] += strafe_z
-    if keys[K_d]:
-        player_pos[0] += strafe_x
-        player_pos[2] -= strafe_z
-
-    # Jumping logic
-    if keys[K_SPACE] and player_pos[1] == 0:  # Only jump if on the ground
-        vertical_speed = JUMP_FORCE
-        is_jumping = True
-
-def handle_mouse():
-    global yaw, pitch, mouse_sensitivity
-
-    # Get mouse movement
-    mouse_dx, mouse_dy = pygame.mouse.get_rel()
-
-    # Update yaw (turning left/right) and pitch (looking up/down)
-    yaw += mouse_dx * mouse_sensitivity
-    pitch += mouse_dy * mouse_sensitivity  # Inverted the pitch control
-
-    # Limit pitch (looking up/down) to prevent flipping over
-    if pitch > 90:
-        pitch = 90
-    if pitch < -90:
-        pitch = -90
 
 def apply_gravity():
     global player_pos, vertical_speed, is_jumping
