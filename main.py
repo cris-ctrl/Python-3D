@@ -53,7 +53,7 @@ def handle_input():
         player_pos[2] -= strafe_z
 
     # Jumping logic
-    if keys[K_SPACE] and not is_jumping:  # Only jump if not already jumping
+    if keys[K_SPACE]: #and not is_jumping:  # Only jump if not already jumping
         vertical_speed = JUMP_FORCE
         is_jumping = True
 
@@ -66,8 +66,8 @@ def apply_gravity():
         player_pos[1] += vertical_speed  # Update player's vertical position
 
         # Stop falling if player lands on the ground
-        if player_pos[1] <= -70:
-            player_pos[1] = -70  # Set player position to ground level
+        if player_pos[1] <= 0:
+            player_pos[1] = 0  # Set player position to ground level
             is_jumping = False  # Reset jumping state
             vertical_speed = 0  # Reset vertical speed
 
