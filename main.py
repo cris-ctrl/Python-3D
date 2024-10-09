@@ -53,10 +53,24 @@ def handle_input():
         player_pos[2] -= strafe_z
 
     # Jumping logic
-    if keys[K_SPACE] and player_pos[1] == 0:  # Only jump if on the ground
+    if keys[K_SPACE] and not is_jumping:  # Only jump if not already jumping
         vertical_speed = JUMP_FORCE
         is_jumping = True
-    
+
+def apply_gravity():
+    global player_pos, vertical_speed, is_jumping
+
+    # Always apply gravity regardless of jump state
+    if is_jumping or player_pos[1] > 0:  # Apply gravity if jumping or falling
+        vertical_speed += GRAVITY  # Apply gravity
+        player_pos[1] += vertical_speed  # Update player's vertical position
+
+        # Stop falling if player lands on the ground
+        if player_pos[1] <= -70:
+            player_pos[1] = -70  # Set player position to ground level
+            is_jumping = False  # Reset jumping state
+            vertical_speed = 0  # Reset vertical speed
+
 def handle_mouse():
     global yaw, pitch, mouse_sensitivity
 
@@ -72,20 +86,6 @@ def handle_mouse():
         pitch = 90
     if pitch < -90:
         pitch = -90
-
-
-def apply_gravity():
-    global player_pos, vertical_speed, is_jumping
-
-    if is_jumping:
-        player_pos[1] += vertical_speed
-        vertical_speed += GRAVITY  # Apply gravity
-
-        # Stop jumping if player lands on the ground
-        if player_pos[1] <= 0:
-            player_pos[1] = 0
-            is_jumping = False
-            vertical_speed = 0
 
 fullscreen = False  # Track fullscreen state
 
