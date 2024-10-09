@@ -7,7 +7,7 @@ import os
 import sys
 from Functions.boxes import draw_box
 from Functions.room import draw_room
-from Functions.input import handle_input, handle_mouse
+
 # Define constants for movement, jump, and sensitivity
 FOV = 90
 MOVE_SPEED = 0.1
@@ -27,6 +27,53 @@ vertical_speed = 0  # Speed of vertical movement (used for jumping)
 fullscreen = False  # Track if the game is in fullscreen mode
 
 
+def handle_input():
+    global player_pos, yaw, pitch, vertical_speed, is_jumping
+
+    keys = pygame.key.get_pressed()
+
+    # Movement forward and backward
+    move_x = math.sin(math.radians(yaw)) * MOVE_SPEED
+    move_z = math.cos(math.radians(yaw)) * MOVE_SPEED
+    if keys[K_w]:
+        player_pos[0] += move_x
+        player_pos[2] -= move_z
+    if keys[K_s]:
+        player_pos[0] -= move_x
+        player_pos[2] += move_z
+
+    # Strafe left and right
+    strafe_x = math.sin(math.radians(yaw + 90)) * MOVE_SPEED
+    strafe_z = math.cos(math.radians(yaw + 90)) * MOVE_SPEED
+    if keys[K_a]:
+        player_pos[0] -= strafe_x
+        player_pos[2] += strafe_z
+    if keys[K_d]:
+        player_pos[0] += strafe_x
+        player_pos[2] -= strafe_z
+
+    # Jumping logic
+    if keys[K_SPACE] and player_pos[1] == 0:  # Only jump if on the ground
+        vertical_speed = JUMP_FORCE
+        is_jumping = True
+    
+def handle_mouse():
+    global yaw, pitch, mouse_sensitivity
+
+    # Get mouse movement
+    mouse_dx, mouse_dy = pygame.mouse.get_rel()
+
+    # Update yaw (turning left/right) and pitch (looking up/down)
+    yaw += mouse_dx * mouse_sensitivity
+    pitch += mouse_dy * mouse_sensitivity  # Inverted the pitch control
+
+    # Limit pitch (looking up/down) to prevent flipping over
+    if pitch > 90:
+        pitch = 90
+    if pitch < -90:
+        pitch = -90
+
+
 def apply_gravity():
     global player_pos, vertical_speed, is_jumping
 
@@ -43,6 +90,7 @@ def apply_gravity():
 fullscreen = False  # Track fullscreen state
 
 def toggle_fullscreen():
+
     global fullscreen
     fullscreen = not fullscreen  # Toggle fullscreen state
     
@@ -53,7 +101,6 @@ def toggle_fullscreen():
     
     # Update the viewport and aspect ratio
     update_viewport()
-
 def update_viewport():
     width, height = pygame.display.get_surface().get_size()
     
@@ -67,6 +114,40 @@ def update_viewport():
     gluPerspective(FOV, aspect_ratio, 0.1, 50.0)
     glMatrixMode(GL_MODELVIEW)
 
+class OBJModel:
+    def __init__(self):
+        self.vertices = []
+        self.texcoords = []
+        self.normals = []
+        self.faces = []
+
+    def load_obj(self, filename):
+        with open(filename, 'r') as file:
+            for line in file:
+                if line.startswith('v '):  # Vertex
+                    vertex = list(map(float, line.strip().split()[1:]))
+                    self.vertices.append(vertex)
+                elif line.startswith('vt '):  # Texture Coordinate
+                    texcoord = list(map(float, line.strip().split()[1:]))
+                    self.texcoords.append(texcoord)
+                elif line.startswith('vn '):  # Normal
+                    normal = list(map(float, line.strip().split()[1:]))
+                    self.normals.append(normal)
+                elif line.startswith('f '):  # Face
+                    face = line.strip().split()[1:]
+                    vertex_indices = []
+                    for v in face:
+                        indices = list(map(int, v.split('/')))
+                        vertex_indices.append(indices[0] - 1)  # OBJ uses 1-based indexing
+                    self.faces.append(vertex_indices)
+
+    def render(self):
+        for face in self.faces:
+            glBegin(GL_TRIANGLES)
+            for vertex_index in face:
+                vertex = self.vertices[vertex_index]
+                glVertex3f(*vertex)
+            glEnd()
 
 
 
@@ -87,7 +168,13 @@ def main():
     pygame.mouse.set_visible(False)    # Hide mouse
     pygame.event.set_grab(True)        # Lock mouse inside window
 
+
+    # Load the OBJ model
+    model = OBJModel()
+    model.load_obj("Models/Cube/cube.obj")
+
     running = True
+    #Main loop
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
