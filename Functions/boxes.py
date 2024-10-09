@@ -6,75 +6,71 @@ import math
 import os
 import sys
 
-def draw_box(color, size, position, rotation):
-    # Save the current matrix
+def draw_box(position, size, color):
     glPushMatrix()
-    
-    # Apply translation to the position
     glTranslatef(position[0], position[1], position[2])
     
-    # Apply rotation (assuming rotation is a tuple of (rx, ry, rz))
-    glRotatef(rotation[0], 1, 0, 0)  # Rotate around x-axis
-    glRotatef(rotation[1], 0, 1, 0)  # Rotate around y-axis
-    glRotatef(rotation[2], 0, 0, 1)  # Rotate around z-axis
-
-    glBegin(GL_QUADS)
-
-    # Set the color
-    glColor3f(*color)
-
-    # Calculate the half dimensions
-    half_size_x = size[0] / 2
-    half_size_y = size[1] / 2
-    half_size_z = size[2] / 2
-
-    # Define vertices for the cuboid
+    # Define the vertices of the box
+    half_size = size / 2.0
     vertices = [
-        # Front face
-        (-half_size_x, -half_size_y, -half_size_z),
-        ( half_size_x, -half_size_y, -half_size_z),
-        ( half_size_x,  half_size_y, -half_size_z),
-        (-half_size_x,  half_size_y, -half_size_z),
-        
-        # Back face
-        (-half_size_x, -half_size_y,  half_size_z),
-        ( half_size_x, -half_size_y,  half_size_z),
-        ( half_size_x,  half_size_y,  half_size_z),
-        (-half_size_x,  half_size_y,  half_size_z),
-
-        # Left face
-        (-half_size_x, -half_size_y, -half_size_z),
-        (-half_size_x, -half_size_y,  half_size_z),
-        (-half_size_x,  half_size_y,  half_size_z),
-        (-half_size_x,  half_size_y, -half_size_z),
-
-        # Right face
-        ( half_size_x, -half_size_y, -half_size_z),
-        ( half_size_x, -half_size_y,  half_size_z),
-        ( half_size_x,  half_size_y,  half_size_z),
-        ( half_size_x,  half_size_y, -half_size_z),
-
-        # Top face
-        (-half_size_x,  half_size_y, -half_size_z),
-        ( half_size_x,  half_size_y, -half_size_z),
-        ( half_size_x,  half_size_y,  half_size_z),
-        (-half_size_x,  half_size_y,  half_size_z),
-
-        # Bottom face
-        (-half_size_x, -half_size_y, -half_size_z),
-        ( half_size_x, -half_size_y, -half_size_z),
-        ( half_size_x, -half_size_y,  half_size_z),
-        (-half_size_x, -half_size_y,  half_size_z),
+        [half_size, half_size, -half_size],
+        [half_size, -half_size, -half_size],
+        [half_size, half_size, half_size],
+        [half_size, -half_size, half_size],
+        [-half_size, half_size, -half_size],
+        [-half_size, -half_size, -half_size],
+        [-half_size, half_size, half_size],
+        [-half_size, -half_size, half_size],
     ]
 
-    # Draw each face
-    for i in range(6):
-        for j in range(4):
-            glVertex3f(vertices[i * 4 + j][0],
-                       vertices[i * 4 + j][1],
-                       vertices[i * 4 + j][2])
+    # Store the vertices for later use
+    box_vertices = vertices
 
+    # Draw the box using quads
+    glBegin(GL_QUADS)
+    
+    # Define faces with color
+    glColor3f(color[0], color[1], color[2])
+    
+    # Front face
+    glVertex3f(*vertices[0])
+    glVertex3f(*vertices[1])
+    glVertex3f(*vertices[3])
+    glVertex3f(*vertices[2])
+    
+    # Back face
+    glVertex3f(*vertices[4])
+    glVertex3f(*vertices[6])
+    glVertex3f(*vertices[5])
+    glVertex3f(*vertices[7])
+    
+    # Left face
+    glVertex3f(*vertices[4])
+    glVertex3f(*vertices[5])
+    glVertex3f(*vertices[1])
+    glVertex3f(*vertices[0])
+    
+    # Right face
+    glVertex3f(*vertices[2])
+    glVertex3f(*vertices[3])
+    glVertex3f(*vertices[7])
+    glVertex3f(*vertices[6])
+    
+    # Top face
+    glVertex3f(*vertices[4])
+    glVertex3f(*vertices[0])
+    glVertex3f(*vertices[2])
+    glVertex3f(*vertices[6])
+    
+    # Bottom face
+    glVertex3f(*vertices[1])
+    glVertex3f(*vertices[5])
+    glVertex3f(*vertices[7])
+    glVertex3f(*vertices[3])
+    
     glEnd()
-
-    # Restore the previous matrix
+    
     glPopMatrix()
+
+    # Return the vertices for the box
+    return box_vertices
