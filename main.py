@@ -141,14 +141,22 @@ class OBJModel:
                         vertex_indices.append(indices[0] - 1)  # OBJ uses 1-based indexing
                     self.faces.append(vertex_indices)
 
-    def render(self):
+    def render(self, color=(1, 1, 1), position=(0, 0, 0)):
+        glPushMatrix()  # Save the current transformation matrix
+
+        # Apply the position transformation
+        glTranslatef(*position)
+        # Set the color
+        glColor3f(*color)
+
         for face in self.faces:
-            glBegin(GL_TRIANGLES)
+            glBegin(GL_QUADS)  # Use GL_QUADS for quadrilaterals
             for vertex_index in face:
                 vertex = self.vertices[vertex_index]
                 glVertex3f(*vertex)
             glEnd()
 
+        glPopMatrix()  # Restore the previous transformation matrix
 
 
 def main():
@@ -170,8 +178,8 @@ def main():
 
 
     # Load the OBJ model
-    model = OBJModel()
-    model.load_obj("Models/Cube/cube.obj")
+    cube = OBJModel()
+    cube.load_obj("Models/Cube/cube.obj")
 
     running = True
     #Main loop
@@ -205,6 +213,7 @@ def main():
         #draw_obj_model('models/cube/cube.obj', color=(0.5, 0.8, 0.2), scale=(1, 1, 1), rotation=(0, 45, 0), position=(0, 0, -5))
         #draw_obj_model('untitled1.obj', color=(0.5, 0.8, 1), scale=(1, 1, 1), rotation=(0, 45, 0), position=(3, 0, 5))
 
+        cube.render(color=(0.5,0.8,0.2), position=(3,0,5))
 
         #draw_room()
         draw_box((1,0,0), (10,5,1), (0,0,12), (0,0,0))
