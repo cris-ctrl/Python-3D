@@ -121,31 +121,25 @@ class OBJModel:
         self.normals = []
         self.faces = []
 
-    def load_obj(filename):
-    vertices = []
-    texture_coords = []
-    normals = []
-    
-    with open(filename, 'r') as file:
-        for line in file:
-            if line.startswith('v '):  # Vertex
-                parts = line.strip().split()[1:4]
-                vertices.append([float(parts[0]), float(parts[1]), float(parts[2])])
-            elif line.startswith('vt '):  # Texture coordinate
-                parts = line.strip().split()[1:3]
-                texture_coords.append([float(parts[0]), float(parts[1])])
-            elif line.startswith('vn '):  # Normal
-                parts = line.strip().split()[1:4]
-                normals.append([float(parts[0]), float(parts[1]), float(parts[2])])
-            elif line.startswith('f '):  # Face
-                # Process faces if needed, this part may not change much.
-                pass
-
-    # After loading the OBJ, convert vertices into a numpy array if you plan to manipulate them later
-    vertices_matrix = np.array(vertices, dtype='float32')
-
-    return vertices_matrix, texture_coords, normals
-
+    def load_obj(self, filename):
+        with open(filename, 'r') as file:
+            for line in file:
+                if line.startswith('v '):  # Vertex
+                    vertex = list(map(float, line.strip().split()[1:]))
+                    self.vertices.append(vertex)
+                elif line.startswith('vt '):  # Texture Coordinate
+                    texcoord = list(map(float, line.strip().split()[1:]))
+                    self.texcoords.append(texcoord)
+                elif line.startswith('vn '):  # Normal
+                    normal = list(map(float, line.strip().split()[1:]))
+                    self.normals.append(normal)
+                elif line.startswith('f '):  # Face
+                    face = line.strip().split()[1:]
+                    vertex_indices = []
+                    for v in face:
+                        indices = list(map(int, v.split('/')))
+                        vertex_indices.append(indices[0] - 1)  # OBJ uses 1-based indexing
+                    self.faces.append(vertex_indices)
 
     def render(self, color=(1, 1, 1), position=(0, 0, 0)):
         glPushMatrix()  # Save the current transformation matrix
