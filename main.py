@@ -27,9 +27,6 @@ vertical_speed = 0  # Speed of vertical movement (used for jumping)
 fullscreen = False  # Track if the game is in fullscreen mode
 
 
-
-
-
 def apply_gravity():
     global player_pos, vertical_speed, is_jumping
 
