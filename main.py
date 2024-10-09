@@ -210,9 +210,6 @@ def main():
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-        #draw_obj_model('models/cube/cube.obj', color=(0.5, 0.8, 0.2), scale=(1, 1, 1), rotation=(0, 45, 0), position=(0, 0, -5))
-        #draw_obj_model('untitled1.obj', color=(0.5, 0.8, 1), scale=(1, 1, 1), rotation=(0, 45, 0), position=(3, 0, 5))
-
         cube.render(color=(0.5,0.8,0.2), position=(3,0,5))
 
         #draw_room()
